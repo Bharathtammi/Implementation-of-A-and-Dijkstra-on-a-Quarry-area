@@ -1,133 +1,113 @@
-# Implementation of A* and Dijkstra on a Quarry Area
+# Path Planning on Quarry Maps: A* vs Dijkstra
 
-This project implements and compares two classic pathfinding algorithms — **A\*** and **Dijkstra's** — on occupancy grid maps derived from a real-world quarry area (Rellis Campus). The project is implemented in Python using Google Colab.
+This project compares **A\*** and **Dijkstra's algorithm** for shortest-path planning on occupancy-grid maps generated from a real quarry area at RELLIS Campus.[1]
+Implemented in Python with Google Colab notebooks, the project evaluates how each algorithm behaves as map resolution becomes finer and search space grows larger.[1]
 
----
+## Highlights
+
+- Compares informed and uninformed graph-search algorithms on the same terrain maps.[1]
+- Uses real occupancy-grid data derived from quarry-area PGM images.[1]
+- Tests performance across 10x10 m, 5x5 m, and 2x2 m map resolutions.[1]
+- Visualizes the planned route directly on the map output.[1]
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Algorithms](#algorithms)
-- [Map Representation](#map-representation)
-- [Project Structure](#project-structure)
+- [Project Goal](#project-goal)
+- [Why This Project Matters](#why-this-project-matters)
+- [Algorithms Used](#algorithms-used)
+- [Map Modeling](#map-modeling)
+- [Repository Layout](#repository-layout)
 - [How to Run](#how-to-run)
-- [Results](#results)
+- [Performance Snapshot](#performance-snapshot)
 - [Dependencies](#dependencies)
+- [Author](#author)
 
----
+## Project Goal
 
-## Overview
+The main objective is to compute an optimal path between a start position and a goal position on quarry terrain maps represented as occupancy grids.[1]
+The project then compares both algorithms using two practical criteria: pathfinding behavior and computation time.[1]
 
-The goal of this project is to find the optimal path between a start and goal position on quarry terrain maps at multiple resolutions (10x10m, 5x5m, and 2x2m). The maps are derived from PGM (Portable Gray Map) occupancy grid images of the Rellis Campus quarry area.
+## Why This Project Matters
 
-Both algorithms are evaluated and compared based on:
-- Path quality
-- Computation / simulation time
+Path-planning performance changes sharply as resolution increases because the number of searchable cells rises and the algorithm must inspect more of the environment.[1]
+This makes the project a useful demonstration of why heuristic-guided search such as A* is often preferred in robotics and autonomous navigation.[1]
 
----
+## Algorithms Used
 
-## Algorithms
+### A* Search — `A_star.ipynb`
 
-### A* Search (`A_star.ipynb`)
+A* is an informed search algorithm that combines accumulated travel cost with a heuristic estimate of the remaining distance to the goal.[1]
+The implementation uses the evaluation function `f(n) = g(n) + h(n)`, where `g(n)` is the cost from the start node and `h(n)` is the Euclidean heuristic.[1]
 
-A* is an informed search algorithm that uses a heuristic to guide pathfinding efficiently.
+**Key characteristics**
+- 4-directional movement: up, down, left, right.[1]
+- Priority-based expansion using `PriorityQueue`.[1]
+- Helper routines for coordinate conversion, heuristic calculation, child-node generation, and core search execution.[1]
 
-- **Cost function:** `f(n) = g(n) + h(n)`
-  - `g(n)` — cost from start to current node
-  - `h(n)` — Euclidean distance heuristic to the goal
-- **Movement:** 4-directional (up, down, left, right)
-- **Data structure:** `PriorityQueue` ordered by f-cost
-- **Key methods:**
-  - `grid_to_index()` / `index_to_grid()` — coordinate conversions
-  - `calculate_heuristic_cost()` — Euclidean distance to goal
-  - `find_child_nodes()` — generates valid 4-neighbors
-  - `astar_search()` — main loop expanding lowest f-cost nodes
+### Dijkstra's Algorithm — `Djkstra.ipynb`
 
-### Dijkstra's Algorithm (`Djkstra.ipynb`)
+Dijkstra's algorithm is an uninformed shortest-path method that expands nodes solely according to cumulative travel cost.[1]
+Its evaluation function is `f(n) = g(n)`, which means no heuristic is used to guide the search toward the goal.[1]
 
-Dijkstra's is an uninformed search algorithm that explores all nodes uniformly by cost.
+**Key characteristics**
+- 4-directional movement on the occupancy grid.[1]
+- Priority-queue-based node expansion.[1]
+- Core routines for search, neighbor generation, and node travel-cost computation.[1]
 
-- **Cost function:** `f(n) = g(n)` (no heuristic)
-- **Movement:** 4-directional (up, down, left, right)
-- **Data structure:** Priority queue ordered by travel cost
-- **Key methods:**
-  - `dijkstra_search()` — main loop expanding least-cost nodes
-  - `find_child_nodes()` — generates valid 4-neighbors
-  - `travel_to_node_cost()` — computes edge traversal cost
+## Map Modeling
 
----
+The terrain is represented using PGM occupancy-grid images of the quarry area.[1]
+Cells are classified through `PerceptionMapper`, where pixels with intensity greater than or equal to 125 are treated as free space with cost `1`, and pixels below 125 are treated as obstacles with cost `1000`.[1]
+The resulting path is displayed as an overlay on the Matplotlib-rendered map.[1]
 
-## Map Representation
+## Repository Layout
 
-- **Source:** PGM occupancy grid images of Rellis Campus quarry area
-- **Resolutions tested:** 10x10m, 5x5m, 2x2m
-- **Cell encoding via `PerceptionMapper`:**
-  - Free space (pixel intensity >= 125): cost = `1`
-  - Obstacle (pixel intensity < 125): cost = `1000`
-- Path is visualized as red polygons overlaid on the matplotlib map
-
----
-
-## Project Structure
-
-```
+```text
 .
-├── A_star.ipynb        # A* algorithm implementation and visualization
-├── Djkstra.ipynb       # Dijkstra's algorithm implementation and visualization
+├── A_star.ipynb        # A* implementation and visualization
+├── Djkstra.ipynb       # Dijkstra implementation and visualization
 ├── index.html          # Supporting HTML file
 ├── main.cpython-311.pyc
 ├── .gitignore
 └── README.md
 ```
 
----
+The repository is organized around two primary notebooks, each dedicated to one algorithm and its path-planning workflow.[1]
 
 ## How to Run
 
-1. Open the notebooks in [Google Colab](https://colab.research.google.com/) or Jupyter Notebook.
-2. Upload the required quarry area PGM map files.
-3. Run all cells sequentially in either `A_star.ipynb` or `Djkstra.ipynb`.
-4. The notebook will:
-   - Load and parse the occupancy grid map
-   - Run the pathfinding algorithm for multiple start/goal pairs
-   - Display the computed path overlaid on the map
-   - Print simulation times for each run
+1. Open the project notebooks in Google Colab or Jupyter Notebook.[1]
+2. Upload the required PGM quarry-area map files.[1]
+3. Run all cells in either `A_star.ipynb` or `Djkstra.ipynb`.[1]
+4. Review the generated visualization and the simulation-time output.[1]
 
----
+During execution, the notebook loads the occupancy grid, runs the selected pathfinding algorithm for start and goal pairs, and plots the computed route over the map.[1]
 
-## Results
+## Performance Snapshot
 
-| Resolution | Algorithm  | Approx. Simulation Time |
-|------------|------------|-------------------------|
-| 10x10m     | Dijkstra   | ~0.03s                  |
-| 5x5m       | Dijkstra   | ~0.5s                   |
-| 2x2m       | Dijkstra   | ~5.8s                   |
-| 10x10m     | A*         | Faster (heuristic-guided) |
-| 5x5m       | A*         | Faster (heuristic-guided) |
-| 2x2m       | A*         | Faster (heuristic-guided) |
+| Resolution | Dijkstra | A* |
+|---|---|---|
+| 10x10 m | ~0.03 s [1] | Faster through heuristic guidance [1] |
+| 5x5 m | ~0.5 s [1] | Faster through heuristic guidance [1] |
+| 2x2 m | ~5.8 s [1] | Faster through heuristic guidance [1] |
 
-A* significantly outperforms Dijkstra in speed due to its heuristic-guided search, especially at finer resolutions.
-
----
+The reported results show that A* outperforms Dijkstra in runtime, especially at finer map resolutions where the search space becomes larger.[1]
 
 ## Dependencies
 
-- Python 3.x
-- `numpy`
-- `matplotlib`
-- `queue` (Python standard library)
-- `time` (Python standard library)
-- `PIL` / `Pillow` (for image loading)
+- Python 3.x.[1]
+- `numpy`.[1]
+- `matplotlib`.[1]
+- `queue` from the Python standard library.[1]
+- `time` from the Python standard library.[1]
+- `PIL` / `Pillow` for image loading.[1]
 
-Install dependencies:
+Install the required external packages with:
 
 ```bash
 pip install numpy matplotlib Pillow
 ```
 
----
-
 ## Author
 
-**Bharathtammi**  
-Project implemented in Google Colab (Python)
+**Bharathtammi** created the project, which is described on GitHub as a Python implementation developed in Google Colab.[1]
